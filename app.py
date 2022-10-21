@@ -12,6 +12,8 @@ import requests
 import seaborn as sns
 import warnings
 warnings.filterwarnings("ignore")
+import time
+
 
 
 st.sidebar.title("Chat Analyser")
@@ -23,8 +25,7 @@ if uploaded_file is not None:
     bytes_data = uploaded_file.getvalue()
     data = bytes_data.decode("utf-8")
     df = preprocessor.preprocess(data)
-    st.header("Complete Chat Dataset")
-    st.dataframe(df)
+
 
     # fetch unique users
     unique_user_list = df["user"].unique().tolist()
@@ -56,6 +57,26 @@ if uploaded_file is not None:
             st.title(url_count)
         st.write("---")
 
+        # Performing the Sentiment analysis.
+        df_sentiment = statsassistance.sentiment_Analysis(selected_user,df)
+
+        x = sum(df_sentiment["positive"])
+        y = sum(df_sentiment["negative"])
+        z = sum(df_sentiment["neutral"])
+
+
+        def score(a, b, c):
+            if (a > b) and (a > c):
+                st.info(str(selected_user)+" is having the Positive Sentiment")
+            if (b > a) and (b > c):
+                st.info(str(selected_user) + " is having the Negative Sentiment")
+            if (c > a) and (c > b):
+                st.info(str(selected_user) + " is having the Neutral Sentiment")
+
+
+        score(x, y, z)
+
+        st.write("---")
         # Displaying the monthly-yearly timeline graph
         timeline = statsassistance.monthly_timeline(selected_user,df)
         fig = px.line(timeline, x="time", y="messages", title='Messages across time')
@@ -103,6 +124,11 @@ if uploaded_file is not None:
 
         # Finding the busiest user in the group
         if selected_user == "Group":
+
+            # Displaying the complete chat dataset
+            st.header("Complete Chat Dataset")
+            st.dataframe(df)
+
 
             X,per_contri_df = statsassistance.get_busiest_user(df)
             figure,ax = plt.subplots()
