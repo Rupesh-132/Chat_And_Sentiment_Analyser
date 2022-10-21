@@ -1,13 +1,20 @@
 
 from urlextract import URLExtract # Library to extract the links from messages
 import requests
-from wordcloud import WordCloud
+
 import emoji
 import pandas as pd
 from collections import Counter
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+nltk.download('vader_lexicon')
+import streamlit as st
+import time
 
 
 # Calculates stats on the group and user level
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
 def get_stats(selected_user,df):
     if selected_user != 'Group':
         df = df[df['user'] == selected_user]
@@ -31,6 +38,8 @@ def get_stats(selected_user,df):
 
 
 # Calculates the busiest user in the group
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
 def get_busiest_user(df):
     # 1. top busiest users.
     X = df["user"].value_counts().head()
@@ -42,6 +51,8 @@ def get_busiest_user(df):
 
 
 # This function calculates overall emojis used in the group
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
 def get_emoji(selected_user,df):
     if selected_user == "Group":
         emoji_list = []
@@ -56,6 +67,8 @@ def get_emoji(selected_user,df):
 
 
 # This function calculates the emoji user wise
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
 def plot_emoji(selected_user,df):
 
     user_df = df[df["user"] == selected_user]
@@ -70,6 +83,8 @@ def plot_emoji(selected_user,df):
     return user_final_df
 
 
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
 def most_common_words(selected_user,df):
 
     # We can use hinglish stopwords i.e hindi+english to remove that from our dataframe
@@ -100,6 +115,8 @@ def most_common_words(selected_user,df):
 
 
 # For the montly timeline
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
 def monthly_timeline(selected_user,df):
     # We only update the dataframe if the selected user is not Group
     if selected_user != 'Group':
@@ -116,6 +133,8 @@ def monthly_timeline(selected_user,df):
     return timeline
 
 
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
 def daily_timeline(selected_user,df):
     # We only update the dataframe if the selected user is not Group
     if selected_user != 'Group':
@@ -127,6 +146,8 @@ def daily_timeline(selected_user,df):
     return daily_timeline
 
 
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
 def weekly_activities(selected_user,df):
     # We only update the dataframe if the selected user is not Group
     if selected_user != 'Group':
@@ -138,6 +159,8 @@ def weekly_activities(selected_user,df):
     return weekdays
 
 
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
 def monthly_activities(selected_user,df):
     # We only update the dataframe if the selected user is not Group
     if selected_user != 'Group':
@@ -149,12 +172,31 @@ def monthly_activities(selected_user,df):
     return months
 
 
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
 def plot_heatmap(selected_user,df):
     if selected_user != 'Group':
         df = df[df['user'] == selected_user]
     activity_pivot_table =df.pivot_table(index="Day_name", columns="Period", values="messages", aggfunc="count")
 
     return activity_pivot_table
+
+
+@st.experimental_memo
+@st.cache(suppress_st_warning=True)
+def sentiment_Analysis(selected_user,df):
+    if selected_user != 'Group':
+        df = df[df['user'] == selected_user]
+
+    data = pd.DataFrame(df, columns=["date", "time", "user", "messages"])
+    # df['Date']=pd.to_datetime(df[''])
+
+    sentiments = SentimentIntensityAnalyzer()
+    df["positive"] = [sentiments.polarity_scores(i)["pos"] for i in df["messages"]]
+    df["negative"] = [sentiments.polarity_scores(i)["neg"] for i in df["messages"]]
+    df["neutral"] = [sentiments.polarity_scores(i)["neu"] for i in df["messages"]]
+
+    return df
 
 
 # ---- LOAD ASSETS ----
