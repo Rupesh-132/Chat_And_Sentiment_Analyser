@@ -23,9 +23,8 @@ uploaded_file = st.sidebar.file_uploader("Choose a file")
 if uploaded_file is not None:
     # To read file as bytes:
     bytes_data = uploaded_file.getvalue()
-    data = bytes_data.decode("utf-8")
+    data = bytes_data.decode("utf-8") #converted into string
     df = preprocessor.preprocess(data)
-
 
     # fetch unique users
     unique_user_list = df["user"].unique().tolist()
@@ -34,6 +33,8 @@ if uploaded_file is not None:
     unique_user_list.remove('group_notification')
     unique_user_list.sort()
     unique_user_list.insert(0,"Group")
+
+    # getting select box list of all the users in dropdown
     selected_user = st.sidebar.selectbox("Show analysis wrt",unique_user_list)
 
     # On button click -> Analysis will start
