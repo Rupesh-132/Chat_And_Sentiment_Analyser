@@ -7,6 +7,11 @@ import pandas as pd
 from collections import Counter
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+# vader_lexicon is a pre-trained sentiment analysis tool that is part of the nltk (Natural Language Toolkit) library in Python.
+# It is based on the VADER (Valence Aware Dictionary and sEntiment Reasoner) sentiment analysis algorithm, which is specifically designed to analyze sentiments expressed in social media.
+# The VADER lexicon is a list of words and associated sentiment scores,
+# where the sentiment scores range from -1 to 1, with -1 representing a negative sentiment, 0 representing a neutral sentiment, and 1 representing a positive sentiment.
 nltk.download('vader_lexicon')
 import streamlit as st
 import time
